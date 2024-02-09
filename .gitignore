@@ -1,0 +1,28 @@
+# Directorios
+node_modules/
+dist/
+coverage/
+
+# Archivos de configuración
+.env
+.env.*
+!.env.example
+
+# Archivos de registro
+logs
+*.log
+
+# Archivos de dependencias
+yarn.lock
+package-lock.json
+
+# Archivos generados por IDEs/editores de texto
+.idea/
+.vscode/
+
+# Archivos de compilación
+*.js
+*.map
+
+# Archivos de respaldo
+*.bak
