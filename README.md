@@ -27,7 +27,7 @@ You can add any route tu exclude the middleware here:
 ```js
 // src/routerMiddleware/authMiddleware.route.ts
 const excludedRoutes = [
-    { path: 'users/signup', method: RequestMethod.POST },\
+    { path: 'users/signup', method: RequestMethod.POST },
     //...
 ];
 ```
