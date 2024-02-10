@@ -1,10 +1,10 @@
-## Nest Js + Typescript + MongoDB
+# Nest Js + Typescript + MongoDB
 
-This is a template of the Nest Js aplication with MongoDB and initial Auth Setup and Middleware.
+This template provides a Nest Js application setup with MongoDB integration, including initial Auth Setup and Middleware.
 
-## Cors
+## Cors Configuration
 
-You can update the CORS configuration, by default allow all request:
+You can customize CORS settings in `src/main.ts`. By default, all requests are allowed.
 
 ```js
 // src/main.ts
@@ -18,35 +18,31 @@ app.use(
 );
 ```
 
-## Authentication Middleware:
+## Authentication Middleware
 
-The provided code includes middleware configuration to enforce authentication for routes using JSON Web Tokens (JWT) in a NestJS application.
+Middleware is included to enforce authentication for routes using JSON Web Tokens (JWT) in the NestJS application.
 
-Middleware Configuration:
-The configure method applies the AuthMiddleware to all routes except those listed in the exclusion list.
+You can add any route tu exclude the middleware here:
 
-Auth Middleware:
-The AuthMiddleware intercepts incoming requests, extracting JWT tokens from the authorization header. If a valid token is found, it verifies the user's session and attaches user information to the request object.
-
-Excluded Routes:
-Certain routes, such as user signup, signin, and others, are excluded from authentication to allow unrestricted access. These routes are specified in the excludedRoutes array.
+```js
+// src/routerMiddleware/authMiddleware.route.ts
+const excludedRoutes = [
+    { path: 'users/signup', method: RequestMethod.POST },\
+    //...
+];
+```
 
 ## API Routes
 
--   **POST /users/signup**: Registers a new user in the system. Uses the `CreateUserDto` to create a new user in the database and returns a JWT token for authentication.
+-   **POST /users/signup**: Register a new user in the system.
+-   **POST /users/signin**: Sign in to the system.
+-   **GET /users/signout**: Sign out of the system.
+-   **GET /users/verify-token**: Verify the provided access token.
+-   **GET /users/find-from-admin/:id**: Retrieve user details by ID.
+-   **POST /users/find-by-params**: Search for a user using multiple parameters.
+-   **POST /users/find-by-email**: Search for a user by email address.
+-   **POST /users/desactivate-user**: Deactivate a user in the system.
 
--   **POST /users/signin**: Allows an existing user to sign in to the system. Utilizes the `SigninDto` to verify user credentials and returns a JWT token for authentication.
+## Running the App
 
--   **GET /users/signout**: Enables a logged-in user to sign out of the system. Invalidates the associated access token.
-
--   **GET /users/verify-token**: Verifies if the provided access token is valid and associated with an authenticated user.
-
--   **GET /users/find-from-admin/:id**: Retrieves user details by their ID, primarily intended for use by administrators.
-
--   **POST /users/find-by-params**: Searches for a user using multiple search parameters, specified via the `FindOneByParamsDto`.
-
--   **POST /users/find-by-email**: Searches for a user by their email address, specified via the `FindByEmailDto`.
-
--   **POST /users/desactivate-user**: Deactivates a user in the system, identified by their ID. Optionally includes a reason for suspension via the `DesactivateUserDto`.
-
-## Running the app
+Instructions on how to run the application can be added here.
