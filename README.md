@@ -45,4 +45,14 @@ const excludedRoutes = [
 
 ## Running the App
 
-Instructions on how to run the application can be added here.
+Create docker Image:
+
+```bash
+docker build -t [image-name] . -f DockerFile
+```
+
+Run the container:
+
+```bash
+docker run -p 3000:3000 -d [image-name]
+```
