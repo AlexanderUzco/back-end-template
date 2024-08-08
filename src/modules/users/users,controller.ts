@@ -13,8 +13,6 @@ import { HandleException } from 'src/decorators/handle-exceptio-decorator.decora
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    // add HandleException decorator
-
     @Post('/signup')
     @HandleException('ERROR CREATE USER')
     async signup(@Body() createUserDto: CreateUserDto) {
