@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { EDatabaseName } from 'src/common/constants/database.constants';
@@ -46,7 +46,7 @@ export class UsersService {
 
         const user = await this.findOneById(userID);
 
-        if (!user) throw new BadRequestException(UserExceptions.NOT_FOUND);
+        if (!user) throw UserExceptions.NOT_FOUND;
 
         const match = { _id: userID };
 
@@ -66,8 +66,7 @@ export class UsersService {
 
         const existUser = await this.findOneByEmail(email);
 
-        if (existUser)
-            throw new BadRequestException(UserExceptions.ALREADY_EXISTS);
+        if (existUser) throw UserExceptions.ALREADY_EXISTS;
 
         const hashedPassword = BcryptHelper.generateHash(password);
 
@@ -116,20 +115,18 @@ export class UsersService {
             _id: 1,
         });
 
-        if (!existUser) throw new BadRequestException(UserExceptions.NOT_FOUND);
+        if (!existUser) throw UserExceptions.NOT_FOUND;
 
         const isMatch = BcryptHelper.compareHash(password, existUser.password);
 
-        if (!isMatch)
-            throw new BadRequestException(UserExceptions.WRONG_PASSWORD);
+        if (!isMatch) throw UserExceptions.WRONG_PASSWORD;
 
         const { token, expiresIn } = await JwtHelper.generateJWT({
             uid: existUser._id as string,
             name: existUser.name,
         });
 
-        if (!token)
-            throw new BadRequestException(AuthExceptions.TOKEN_CREATE_ERROR);
+        if (!token) throw AuthExceptions.TOKEN_CREATE_ERROR;
 
         const existAccessToken = await this.accessTokensService.findByUserId(
             existUser._id as string,
@@ -160,7 +157,7 @@ export class UsersService {
     async signout(userID: string | Types.ObjectId) {
         const user = await this.findOneById(userID);
 
-        if (!user) throw new BadRequestException(UserExceptions.NOT_FOUND);
+        if (!user) throw UserExceptions.NOT_FOUND;
 
         await this.accessTokensService.deleteByUserId(user._id as string);
 
