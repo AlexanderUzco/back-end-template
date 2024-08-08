@@ -2,6 +2,14 @@
 
 This template provides a Nest Js application setup with MongoDB integration, including initial Auth Setup and Middleware.
 
+## Generar Secrets
+
+To generate `JWT_SECRET` using OpenSSL and condify it in base64, you can execute the follow command:
+
+```bash
+openssl rand -base64 32
+```
+
 ## Cors Configuration
 
 You can customize CORS settings in `src/main.ts`. By default, all requests are allowed.
