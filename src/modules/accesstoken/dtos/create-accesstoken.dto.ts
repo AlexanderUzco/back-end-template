@@ -1,12 +1,9 @@
-import { IsString, IsEmail, IsNotEmpty, IsMongoId } from 'class-validator';
-import { ObjectId } from 'mongoose';
+import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateAccessTokenDto {
     @IsString()
-    @IsNotEmpty()
-    @IsMongoId({ each: true })
-    readonly userID: ObjectId;
+    readonly userID: string;
 
     @IsString()
     @IsNotEmpty()

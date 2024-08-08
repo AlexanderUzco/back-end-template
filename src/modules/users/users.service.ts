@@ -79,14 +79,14 @@ export class UsersService {
         const { _id } = userCreated;
 
         const { token, expiresIn } = await JwtHelper.generateJWT({
-            uid: _id,
+            uid: _id as string,
             name,
         });
 
         await this.accessTokensService.create({
             token,
             expiresIn,
-            userID: userCreated._id,
+            userID: userCreated._id as string,
         });
 
         return {
@@ -124,7 +124,7 @@ export class UsersService {
             throw new BadRequestException(UserExceptions.WRONG_PASSWORD);
 
         const { token, expiresIn } = await JwtHelper.generateJWT({
-            uid: existUser._id,
+            uid: existUser._id as string,
             name: existUser.name,
         });
 
@@ -132,17 +132,19 @@ export class UsersService {
             throw new BadRequestException(AuthExceptions.TOKEN_CREATE_ERROR);
 
         const existAccessToken = await this.accessTokensService.findByUserId(
-            existUser._id,
+            existUser._id as string,
         );
 
         if (existAccessToken) {
-            await this.accessTokensService.deleteById(existAccessToken._id);
+            await this.accessTokensService.deleteById(
+                existAccessToken._id as string,
+            );
         }
 
         await this.accessTokensService.create({
             token,
             expiresIn,
-            userID: existUser._id,
+            userID: existUser._id as string,
         });
 
         await this.updateLastLogin(email);
@@ -160,7 +162,7 @@ export class UsersService {
 
         if (!user) throw new BadRequestException(UserExceptions.NOT_FOUND);
 
-        await this.accessTokensService.deleteByUserId(user._id);
+        await this.accessTokensService.deleteByUserId(user._id as string);
 
         return {
             message: 'User signout',
