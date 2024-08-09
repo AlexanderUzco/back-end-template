@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-import { JWT_SECRET } from 'src/environments';
+import { JWT_SECRET } from 'src/common/environments';
 
 export interface Props {
     uid: string;
@@ -50,5 +50,10 @@ export class JwtHelper {
                 }
             });
         });
+    }
+
+    static isTokenExpired(createdAt: Date, expiresIn: number): boolean {
+        const expirationDate = new Date(createdAt.getTime() + expiresIn * 1000);
+        return expirationDate <= new Date();
     }
 }

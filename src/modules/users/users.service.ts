@@ -5,9 +5,9 @@ import { EDatabaseName } from 'src/common/constants/database.constants';
 import {
     AuthExceptions,
     UserExceptions,
-} from 'src/exceptions/messages.exceptions';
-import { BcryptHelper } from 'src/helpers/bcrypt.helper';
-import { JwtHelper } from 'src/helpers/jwt.helper';
+} from 'src/common/exceptions/messages.exceptions';
+import { BcryptHelper } from 'src/common/helpers/bcrypt.helper';
+import { JwtHelper } from 'src/common/helpers/jwt.helper';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { SigninDto } from './dtos/signin.dto';
 import { User, UserDocument } from './schemas/users.schema';
@@ -23,6 +23,16 @@ export class UsersService {
         private readonly userModel: Model<UserDocument>,
         private readonly accessTokensService: AccessTokensService,
     ) {}
+
+    // Método auxiliar para construir la respuesta de signin
+    private buildSigninResponse(user: User, token: string) {
+        return {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            token,
+        };
+    }
 
     async findOneByEmail(email: string, project = {}): Promise<User | null> {
         return this.userModel.findOne({ email }, project).exec();
@@ -108,6 +118,7 @@ export class UsersService {
     }
 
     async signin({ email, password }: SigninDto) {
+        // Buscar el usuario por email, seleccionando solo los campos necesarios
         const existUser = await this.findOneByEmail(email, {
             password: 1,
             name: 1,
@@ -115,12 +126,38 @@ export class UsersService {
             _id: 1,
         });
 
+        // Verificar si el usuario existe
         if (!existUser) throw UserExceptions.NOT_FOUND;
 
+        // Comparar la contraseña
         const isMatch = BcryptHelper.compareHash(password, existUser.password);
-
         if (!isMatch) throw UserExceptions.WRONG_PASSWORD;
 
+        // Buscar un token de acceso existente
+        const existAccessToken = await this.accessTokensService.findByUserId(
+            existUser._id as string,
+        );
+
+        // Si existe un token y no ha expirado, devolverlo
+        if (existAccessToken) {
+            if (
+                !JwtHelper.isTokenExpired(
+                    existAccessToken.createdAt,
+                    existAccessToken.expiresIn,
+                )
+            ) {
+                return this.buildSigninResponse(
+                    existUser,
+                    existAccessToken.token,
+                );
+            } else {
+                await this.accessTokensService.deleteById(
+                    existAccessToken._id as string,
+                );
+            }
+        }
+
+        // Generar un nuevo JWT
         const { token, expiresIn } = await JwtHelper.generateJWT({
             uid: existUser._id as string,
             name: existUser.name,
@@ -128,30 +165,13 @@ export class UsersService {
 
         if (!token) throw AuthExceptions.TOKEN_CREATE_ERROR;
 
-        const existAccessToken = await this.accessTokensService.findByUserId(
-            existUser._id as string,
-        );
-
-        if (existAccessToken) {
-            await this.accessTokensService.deleteById(
-                existAccessToken._id as string,
-            );
-        }
-
         await this.accessTokensService.create({
             token,
             expiresIn,
             userID: existUser._id as string,
         });
 
-        await this.updateLastLogin(email);
-
-        return {
-            _id: existUser._id,
-            name: existUser.name,
-            email: existUser.email,
-            token,
-        };
+        return this.buildSigninResponse(existUser, token);
     }
 
     async signout(userID: string | Types.ObjectId) {
