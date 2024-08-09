@@ -38,9 +38,9 @@ export class UsersService {
         return this.userModel.findOne({ email }, project).exec();
     }
 
-    async findOneById(id: string | Types.ObjectId) {
+    async findOneById(id: Types.ObjectId) {
         const user = await this.userModel
-            .findById(id, { name: 1, email: 1, country: 1 })
+            .findById(id, { _id: 1, name: 1, email: 1, country: 1 })
             .exec();
 
         return user;
@@ -88,14 +88,14 @@ export class UsersService {
         const { _id } = userCreated;
 
         const { token, expiresIn } = await JwtHelper.generateJWT({
-            uid: _id as string,
+            uid: _id,
             name,
         });
 
         await this.accessTokensService.create({
             token,
             expiresIn,
-            userID: userCreated._id as string,
+            userID: userCreated._id,
         });
 
         return {
@@ -135,7 +135,7 @@ export class UsersService {
 
         // Buscar un token de acceso existente
         const existAccessToken = await this.accessTokensService.findByUserId(
-            existUser._id as string,
+            existUser._id,
         );
 
         // Si existe un token y no ha expirado, devolverlo
@@ -151,15 +151,13 @@ export class UsersService {
                     existAccessToken.token,
                 );
             } else {
-                await this.accessTokensService.deleteById(
-                    existAccessToken._id as string,
-                );
+                await this.accessTokensService.deleteById(existAccessToken._id);
             }
         }
 
         // Generar un nuevo JWT
         const { token, expiresIn } = await JwtHelper.generateJWT({
-            uid: existUser._id as string,
+            uid: existUser._id,
             name: existUser.name,
         });
 
@@ -168,18 +166,18 @@ export class UsersService {
         await this.accessTokensService.create({
             token,
             expiresIn,
-            userID: existUser._id as string,
+            userID: existUser._id,
         });
 
         return this.buildSigninResponse(existUser, token);
     }
 
-    async signout(userID: string | Types.ObjectId) {
+    async signout(userID: Types.ObjectId) {
         const user = await this.findOneById(userID);
 
         if (!user) throw UserExceptions.NOT_FOUND;
 
-        await this.accessTokensService.deleteByUserId(user._id as string);
+        await this.accessTokensService.deleteByUserId(user._id);
 
         return {
             message: 'User signout',

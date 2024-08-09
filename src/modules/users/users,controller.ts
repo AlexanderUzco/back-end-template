@@ -7,7 +7,9 @@ import { AuthUserDto } from '../auth/dtos/auth-user.dto';
 import { FindOneByParamsDto } from './dtos/find-one-by-params.dto';
 import { FindByEmailDto } from './dtos/find-by-email.dto';
 import { DesactivateUserDto } from './dtos/desactivate-user.dto';
-import { HandleException } from 'src/decorators/handle-exceptio-decorator.decorator';
+import { HandleException } from 'src/common/decorators/handle-exceptio-decorator.decorator';
+import { ObjectIdPipe } from 'src/common/pipes/objectid.pipe';
+import { Types } from 'mongoose';
 
 @Controller('users')
 export class UsersController {
@@ -39,7 +41,7 @@ export class UsersController {
 
     @Get('/find-from-admin/:id')
     @HandleException('ERROR FIND USER FROM ADMIN')
-    async findByUserIdFromAdmin(@Param('id') id: string) {
+    async findByUserIdFromAdmin(@Param('id', ObjectIdPipe) id: Types.ObjectId) {
         return this.usersService.findOneById(id);
     }
 

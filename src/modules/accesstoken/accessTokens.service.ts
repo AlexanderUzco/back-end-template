@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { EDatabaseName } from 'src/common/constants/database.constants';
 import {
     AccessTokens,
@@ -38,18 +38,18 @@ export class AccessTokensService {
         return newAccessToken;
     }
 
-    async findByUserId(userID: string) {
+    async findByUserId(userID: Types.ObjectId) {
         const accessToken = await this.accessTokenModel
             .findOne({ userID })
             .exec();
         return accessToken;
     }
 
-    async deleteById(id: string) {
+    async deleteById(id: Types.ObjectId) {
         return this.accessTokenModel.deleteOne({ _id: id });
     }
 
-    async deleteByUserId(userID: string) {
+    async deleteByUserId(userID: Types.ObjectId) {
         return this.accessTokenModel.deleteMany({ userID });
     }
 }

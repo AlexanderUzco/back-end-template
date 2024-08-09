@@ -1,11 +1,12 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Types } from 'mongoose';
 
 export class AuthUserDto {
     @IsString()
     @IsNotEmpty()
-    @Type(() => String)
-    readonly _id: string;
+    @Type(() => Types.ObjectId)
+    readonly _id: Types.ObjectId;
 
     @IsString()
     @IsNotEmpty()

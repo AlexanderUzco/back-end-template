@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
+import { Types } from 'mongoose';
 import { JWT_SECRET } from 'src/common/environments';
 
 export interface Props {
-    uid: string;
+    uid: Types.ObjectId;
     name: string;
 }
 
