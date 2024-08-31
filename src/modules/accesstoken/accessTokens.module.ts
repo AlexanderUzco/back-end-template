@@ -15,10 +15,10 @@ import { AccessTokensService } from './accessTokens.service';
                         schema.plugin(require('mongoose-autopopulate'));
                         return schema;
                     },
-                    inject: [getConnectionToken(EDatabaseName.AUTH)],
+                    inject: [getConnectionToken(EDatabaseName.BASE)],
                 },
             ],
-            EDatabaseName.AUTH,
+            EDatabaseName.BASE,
         ),
     ],
     providers: [AccessTokensService],

@@ -11,7 +11,7 @@ import { CreateAccessTokenDto } from './dtos/create-accesstoken.dto';
 @Injectable()
 export class AccessTokensService {
     constructor(
-        @InjectModel(AccessTokens.name, EDatabaseName.AUTH)
+        @InjectModel(AccessTokens.name, EDatabaseName.BASE)
         private readonly accessTokenModel: Model<AccessTokenDocument>,
     ) {}
 

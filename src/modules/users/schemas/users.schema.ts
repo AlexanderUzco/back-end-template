@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { ERole } from 'src/common/constants/role.constants';
 
 export type UserDocument = User & Document;
 
 @Schema()
 export class User extends Document {
-    @Prop()
     _id: Types.ObjectId;
 
     @Prop()
@@ -14,13 +14,16 @@ export class User extends Document {
     @Prop()
     lastname: string;
 
-    @Prop({ unique: true })
-    email: string;
-
     @Prop()
     password: string;
 
-    @Prop()
+    @Prop({ unique: true })
+    email: string;
+
+    @Prop({ default: ERole.USER })
+    role: ERole;
+
+    @Prop({ default: false })
     country: string;
 
     @Prop({
@@ -48,7 +51,9 @@ export class User extends Document {
     })
     reasonSuspended: string;
 
-    @Prop({})
+    @Prop({
+        default: null,
+    })
     lastLogin: Date;
 
     @Prop({ default: null })
@@ -57,7 +62,6 @@ export class User extends Document {
     @Prop({ default: Date.now })
     createdAt: Date;
 
-    // Add deletedAt field
     @Prop({ default: null })
     deletedAt: Date;
 }

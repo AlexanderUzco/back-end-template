@@ -15,11 +15,11 @@ export function HandleException(errorMessage: string) {
                 throw new HttpException(
                     {
                         status: HttpStatus.FORBIDDEN,
-                        error: error || errorMessage,
+                        error: error?.message || error || errorMessage,
                     },
                     HttpStatus.FORBIDDEN,
                     {
-                        cause: error,
+                        cause: error?.message || error || errorMessage,
                     },
                 );
             }

@@ -9,15 +9,16 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AccessTokenModule } from './modules/accesstoken/accessTokens.module';
 import { AuthMiddlewareRoutes } from './routerMiddlewares/authMiddleware.route';
+import { BASE_DB_URI, NODE_ENV } from './common/environments';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
-            envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+            envFilePath: `.env.${NODE_ENV}`,
         }),
-        MongooseModule.forRoot(process.env.BASE_DB_URI, {
-            connectionName: EDatabaseName.AUTH,
+        MongooseModule.forRoot(BASE_DB_URI, {
+            connectionName: EDatabaseName.BASE,
         }),
         UsersModule,
         AuthModule,

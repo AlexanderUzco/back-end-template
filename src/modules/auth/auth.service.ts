@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtHelper } from 'src/common/helpers/jwt.helper';
 import { UsersService } from '../users/users.service';
 import { AccessTokensService } from '../accesstoken/accessTokens.service';
+import AuthExceptions from 'src/common/exceptions/auth.exceptions';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
         );
 
         if (!existAccessToken) {
-            throw new UnauthorizedException('Token not found');
+            throw AuthExceptions.TOKEN_NOT_FOUND;
         }
 
         if (
@@ -32,7 +33,7 @@ export class AuthService {
             )
         ) {
             await this.accessTokensService.deleteByUserId(uid);
-            throw new UnauthorizedException('Token has expired');
+            throw AuthExceptions.TOKEN_EXPIRED;
         }
 
         if (user) {

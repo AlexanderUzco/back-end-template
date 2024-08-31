@@ -2,6 +2,13 @@
 
 This template provides a Nest Js application setup with MongoDB integration, including initial Auth Setup and Middleware.
 
+## Enviroments
+
+1. **NODE_ENV -** Current Enviroment (development/production)
+2. **PORT -** App Port
+3. **JWT_SECRET -** Json Web Token Secret to generate sign token
+4. **BASE_DB_URI -** MongoDB Database URI
+
 ## Generar Secrets
 
 To generate `JWT_SECRET` using OpenSSL and condify it in base64, you can execute the follow command:

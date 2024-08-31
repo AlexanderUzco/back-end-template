@@ -2,10 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { EDatabaseName } from 'src/common/constants/database.constants';
-import {
-    AuthExceptions,
-    UserExceptions,
-} from 'src/common/exceptions/messages.exceptions';
 import { BcryptHelper } from 'src/common/helpers/bcrypt.helper';
 import { JwtHelper } from 'src/common/helpers/jwt.helper';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -15,16 +11,17 @@ import { AccessTokensService } from '../accesstoken/accessTokens.service';
 import { AuthUserDto } from '../auth/dtos/auth-user.dto';
 import { FindOneByParamsDto } from './dtos/find-one-by-params.dto';
 import { DesactivateUserDto } from './dtos/desactivate-user.dto';
+import AuthExceptions from 'src/common/exceptions/auth.exceptions';
+import UserExceptions from 'src/common/exceptions/user.exception';
 
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectModel(User.name, EDatabaseName.AUTH)
+        @InjectModel(User.name, EDatabaseName.BASE)
         private readonly userModel: Model<UserDocument>,
         private readonly accessTokensService: AccessTokensService,
     ) {}
 
-    // Método auxiliar para construir la respuesta de signin
     private buildSigninResponse(user: User, token: string) {
         return {
             _id: user._id,
@@ -62,13 +59,16 @@ export class UsersService {
 
         const update = {
             $set: {
-                isDeleted: true,
+                isSuspended: true,
                 deteledAt: new Date(),
                 reasonSuspended,
             },
         };
         await this.userModel.updateOne(match, update).exec();
-        return;
+
+        return {
+            message: 'User desactivated',
+        };
     }
 
     async createUser(createUserDto: CreateUserDto) {
@@ -118,7 +118,6 @@ export class UsersService {
     }
 
     async signin({ email, password }: SigninDto) {
-        // Buscar el usuario por email, seleccionando solo los campos necesarios
         const existUser = await this.findOneByEmail(email, {
             password: 1,
             name: 1,
@@ -126,19 +125,16 @@ export class UsersService {
             _id: 1,
         });
 
-        // Verificar si el usuario existe
         if (!existUser) throw UserExceptions.NOT_FOUND;
 
-        // Comparar la contraseña
         const isMatch = BcryptHelper.compareHash(password, existUser.password);
+
         if (!isMatch) throw UserExceptions.WRONG_PASSWORD;
 
-        // Buscar un token de acceso existente
         const existAccessToken = await this.accessTokensService.findByUserId(
             existUser._id,
         );
 
-        // Si existe un token y no ha expirado, devolverlo
         if (existAccessToken) {
             if (
                 !JwtHelper.isTokenExpired(
@@ -155,7 +151,6 @@ export class UsersService {
             }
         }
 
-        // Generar un nuevo JWT
         const { token, expiresIn } = await JwtHelper.generateJWT({
             uid: existUser._id,
             name: existUser.name,

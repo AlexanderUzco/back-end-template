@@ -21,7 +21,7 @@ import { AccessTokenModule } from '../accesstoken/accessTokens.module';
                         schema.plugin(require('mongoose-autopopulate'));
                         return schema;
                     },
-                    inject: [getConnectionToken(EDatabaseName.AUTH)],
+                    inject: [getConnectionToken(EDatabaseName.BASE)],
                 },
                 {
                     name: AccessTokens.name,
@@ -30,10 +30,10 @@ import { AccessTokenModule } from '../accesstoken/accessTokens.module';
                         schema.plugin(require('mongoose-autopopulate'));
                         return schema;
                     },
-                    inject: [getConnectionToken(EDatabaseName.AUTH)],
+                    inject: [getConnectionToken(EDatabaseName.BASE)],
                 },
             ],
-            EDatabaseName.AUTH,
+            EDatabaseName.BASE,
         ),
         AccessTokenModule,
     ],

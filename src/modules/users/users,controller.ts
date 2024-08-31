@@ -27,7 +27,7 @@ export class UsersController {
         return this.usersService.signin(signinDto);
     }
 
-    @Get('/signout')
+    @Post('/signout')
     @HandleException('ERROR SIGNOUT USER')
     async signout(@AuthUser() user: AuthUserDto) {
         return this.usersService.signout(user._id);

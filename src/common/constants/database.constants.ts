@@ -1,3 +1,3 @@
 export enum EDatabaseName {
-    AUTH = 'auth',
+    BASE = 'base',
 }
