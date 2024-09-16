@@ -1,6 +1,7 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Types } from 'mongoose';
+import { ERole } from 'src/common/constants/role.constants';
 
 export class AuthUserDto {
     @IsString()
@@ -22,4 +23,9 @@ export class AuthUserDto {
     @IsNotEmpty()
     @Type(() => String)
     readonly token: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @Type(() => String)
+    readonly role: ERole;
 }
