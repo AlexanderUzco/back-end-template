@@ -42,7 +42,7 @@ export class UsersService {
 
     async findOneById(id: Types.ObjectId) {
         const user = await this.userModel
-            .findById(id, { _id: 1, name: 1, email: 1, country: 1 })
+            .findById(id, { _id: 1, name: 1, email: 1, country: 1, role: 1 })
             .exec();
 
         return {
