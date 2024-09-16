@@ -49,9 +49,9 @@ const excludedRoutes = [
 
 ## API Routes
 
--   **POST /users/signup**: Register a new user in the system.
--   **POST /users/signin**: Sign in to the system.
--   **GET /users/signout**: Sign out of the system.
+-   **POST /users/sign-up**: Register a new user in the system.
+-   **POST /users/sign-in**: Sign in to the system.
+-   **GET /users/sign-out**: Sign out of the system.
 -   **GET /users/verify-token**: Verify the provided access token.
 -   **GET /users/find-from-admin/:id**: Retrieve user details by ID.
 -   **POST /users/find-by-params**: Search for a user using multiple parameters.
