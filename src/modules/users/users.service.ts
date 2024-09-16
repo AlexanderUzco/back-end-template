@@ -167,6 +167,9 @@ export class UsersService {
     }
 
     verifyToken(user: AuthUserDto) {
-        return user;
+        return {
+            message: 'Token verified',
+            data: user,
+        };
     }
 }
