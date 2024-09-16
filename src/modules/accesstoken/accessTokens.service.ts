@@ -25,12 +25,11 @@ export class AccessTokensService {
     }
 
     async create(payload: CreateAccessTokenDto) {
-        const { userID, token, expiresIn } = payload;
+        const { userID, token } = payload;
 
         const accessTokenData = new this.accessTokenModel({
             userID,
             token,
-            expiresIn,
         });
 
         const newAccessToken = await accessTokenData.save();
@@ -45,11 +44,22 @@ export class AccessTokensService {
         return accessToken;
     }
 
+    async findByToken(token: string, userID: Types.ObjectId) {
+        const accessToken = await this.accessTokenModel
+            .findOne({ token, userID })
+            .exec();
+        return accessToken;
+    }
+
     async deleteById(id: Types.ObjectId) {
         return this.accessTokenModel.deleteOne({ _id: id });
     }
 
     async deleteByUserId(userID: Types.ObjectId) {
         return this.accessTokenModel.deleteMany({ userID });
+    }
+
+    async deleteByToken(token: string) {
+        return this.accessTokenModel.deleteOne({ token });
     }
 }

@@ -15,19 +15,19 @@ import { Types } from 'mongoose';
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Post('/signup')
+    @Post('/sign-up')
     @HandleException('ERROR CREATE USER')
     async signup(@Body() createUserDto: CreateUserDto) {
         return this.usersService.createUser(createUserDto);
     }
 
-    @Post('/signin')
+    @Post('/sign-in')
     @HandleException('ERROR SIGNIN USER')
     async signin(@Body() signinDto: SigninDto) {
         return this.usersService.signin(signinDto);
     }
 
-    @Post('/signout')
+    @Post('/sign-out')
     @HandleException('ERROR SIGNOUT USER')
     async signout(@AuthUser() user: AuthUserDto) {
         return this.usersService.signout(user._id);

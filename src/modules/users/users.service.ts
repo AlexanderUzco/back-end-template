@@ -22,7 +22,7 @@ export class UsersService {
         private readonly accessTokensService: AccessTokensService,
     ) {}
 
-    private buildSigninResponse(user: User, token: string) {
+    private buildSignInResponse(user: User, token: string) {
         return {
             _id: user._id,
             name: user.name,
@@ -31,8 +31,13 @@ export class UsersService {
         };
     }
 
-    async findOneByEmail(email: string, project = {}): Promise<User | null> {
-        return this.userModel.findOne({ email }, project).exec();
+    async findOneByEmail(email: string, project = {}) {
+        const user = await this.userModel.findOne({ email }, project).exec();
+
+        return {
+            message: 'User found',
+            data: user,
+        };
     }
 
     async findOneById(id: Types.ObjectId) {
@@ -40,7 +45,10 @@ export class UsersService {
             .findById(id, { _id: 1, name: 1, email: 1, country: 1 })
             .exec();
 
-        return user;
+        return {
+            message: 'User found',
+            data: user,
+        };
     }
 
     async findOneByParams(params: FindOneByParamsDto) {
@@ -72,9 +80,9 @@ export class UsersService {
     }
 
     async createUser(createUserDto: CreateUserDto) {
-        const { email, name, password } = createUserDto;
+        const { email, password } = createUserDto;
 
-        const existUser = await this.findOneByEmail(email);
+        const { data: existUser } = await this.findOneByEmail(email);
 
         if (existUser) throw UserExceptions.ALREADY_EXISTS;
 
@@ -87,22 +95,19 @@ export class UsersService {
 
         const { _id } = userCreated;
 
-        const { token, expiresIn } = await JwtHelper.generateJWT({
+        const { token } = await JwtHelper.generateJWT({
             uid: _id,
-            name,
+            email,
         });
 
         await this.accessTokensService.create({
             token,
-            expiresIn,
             userID: userCreated._id,
         });
 
         return {
-            _id: userCreated._id,
-            name: userCreated.name,
-            email: userCreated.email,
-            token,
+            message: 'User created',
+            data: this.buildSignInResponse(userCreated, token),
         };
     }
 
@@ -118,7 +123,7 @@ export class UsersService {
     }
 
     async signin({ email, password }: SigninDto) {
-        const existUser = await this.findOneByEmail(email, {
+        const { data: existUser } = await this.findOneByEmail(email, {
             password: 1,
             name: 1,
             email: 1,
@@ -131,27 +136,7 @@ export class UsersService {
 
         if (!isMatch) throw UserExceptions.WRONG_PASSWORD;
 
-        const existAccessToken = await this.accessTokensService.findByUserId(
-            existUser._id,
-        );
-
-        if (existAccessToken) {
-            if (
-                !JwtHelper.isTokenExpired(
-                    existAccessToken.createdAt,
-                    existAccessToken.expiresIn,
-                )
-            ) {
-                return this.buildSigninResponse(
-                    existUser,
-                    existAccessToken.token,
-                );
-            } else {
-                await this.accessTokensService.deleteById(existAccessToken._id);
-            }
-        }
-
-        const { token, expiresIn } = await JwtHelper.generateJWT({
+        const { token } = await JwtHelper.generateJWT({
             uid: existUser._id,
             name: existUser.name,
         });
@@ -160,15 +145,17 @@ export class UsersService {
 
         await this.accessTokensService.create({
             token,
-            expiresIn,
             userID: existUser._id,
         });
 
-        return this.buildSigninResponse(existUser, token);
+        return {
+            message: 'User signin',
+            data: this.buildSignInResponse(existUser, token),
+        };
     }
 
     async signout(userID: Types.ObjectId) {
-        const user = await this.findOneById(userID);
+        const { data: user } = await this.findOneById(userID);
 
         if (!user) throw UserExceptions.NOT_FOUND;
 

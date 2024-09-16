@@ -8,7 +8,7 @@ export class CreateUserDto {
 
     @IsString()
     @Type(() => String)
-    readonly lastname: string;
+    readonly lastName: string;
 
     @IsString()
     @IsOptional()

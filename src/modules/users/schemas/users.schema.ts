@@ -12,7 +12,7 @@ export class User extends Document {
     name: string;
 
     @Prop()
-    lastname: string;
+    lastName: string;
 
     @Prop()
     password: string;

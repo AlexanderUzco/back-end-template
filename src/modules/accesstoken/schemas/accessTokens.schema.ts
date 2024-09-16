@@ -19,9 +19,6 @@ export class AccessTokens {
     })
     userID: User;
 
-    @Prop({ required: true })
-    expiresIn: number;
-
     @Prop({ required: true, default: Date.now })
     createdAt: Date;
 }

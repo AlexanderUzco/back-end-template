@@ -1,19 +1,28 @@
-const jwt = require('jsonwebtoken');
+import { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
 import { Types } from 'mongoose';
 import { JWT_SECRET } from 'src/common/environments';
 
+const jwt = require('jsonwebtoken');
+
 export interface Props {
     uid: Types.ObjectId;
-    name: string;
+    name?: string;
+    email?: string;
 }
 
 export interface JwtData {
     token: string;
-    expiresIn: number;
+}
+
+export enum EJwtError {
+    TokenExpiredError = 'TokenExpiredError',
+    JsonWebTokenError = 'JsonWebTokenError',
+    NotBeforeError = 'NotBeforeError',
+    Error = 'Error',
 }
 
 export class JwtHelper {
-    private static readonly EXPIRATION_TIME = 259200; // 3 days in seconds
+    private static readonly EXPIRATION_TIME = '3d';
 
     private static generateToken(
         payload: Props,
@@ -21,14 +30,18 @@ export class JwtHelper {
     ): Promise<JwtData> {
         return new Promise((resolve, reject) => {
             const options = { expiresIn: JwtHelper.EXPIRATION_TIME };
-            jwt.sign(payload, secret, options, (err: any, token: any) => {
-                if (err) {
-                    console.error(err);
-                    reject({ token: null, expiresIn: null });
-                } else {
-                    resolve({ token, expiresIn: JwtHelper.EXPIRATION_TIME });
-                }
-            });
+            jwt.sign(
+                payload,
+                secret,
+                options,
+                (err: JsonWebTokenError, token: string) => {
+                    if (err) {
+                        reject({ token: null, error: err.message });
+                    } else {
+                        resolve({ token });
+                    }
+                },
+            );
         });
     }
 
@@ -36,25 +49,26 @@ export class JwtHelper {
         return JwtHelper.generateToken(props, JWT_SECRET);
     }
 
-    static verifyJWT(token: string) {
-        return JwtHelper.verifyToken(token, JWT_SECRET);
+    static async verifyJWT(token: string) {
+        return await JwtHelper.verifyToken(token, JWT_SECRET);
     }
 
-    private static verifyToken(token: string, secret: string) {
-        return new Promise((resolve, reject) => {
-            jwt.verify(token, secret, (err: any, decoded: any) => {
-                if (err) {
-                    console.error(err);
-                    reject('Invalid token');
-                } else {
-                    resolve(decoded);
-                }
-            });
+    private static async verifyToken(
+        token: string,
+        secret: string,
+    ): Promise<JwtPayload | JsonWebTokenError> {
+        return new Promise((resolve) => {
+            jwt.verify(
+                token,
+                secret,
+                (error: JsonWebTokenError, decoded: JwtPayload) => {
+                    if (error) {
+                        resolve(error);
+                    } else {
+                        resolve(decoded);
+                    }
+                },
+            );
         });
-    }
-
-    static isTokenExpired(createdAt: Date, expiresIn: number): boolean {
-        const expirationDate = new Date(createdAt.getTime() + expiresIn * 1000);
-        return expirationDate <= new Date();
     }
 }

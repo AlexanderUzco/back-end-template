@@ -6,7 +6,7 @@ const BASE_DB_URI: string = process.env.BASE_DB_URI || '';
 
 //environment
 const NODE_ENV: string = process.env.NODE_ENV || 'development';
-const PORT: any = process.env.PORT || 3002;
+const PORT: any = process.env.PORT || 3001;
 
 //JWT secret
 const JWT_SECRET: string = process.env.JWT_SECRET || '';

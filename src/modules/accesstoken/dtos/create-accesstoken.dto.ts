@@ -9,11 +9,6 @@ export class CreateAccessTokenDto {
 
     @IsString()
     @IsNotEmpty()
-    @Type(() => Number)
-    readonly expiresIn: number;
-
-    @IsString()
-    @IsNotEmpty()
     @IsEmail()
     @Type(() => String)
     readonly token: string;
