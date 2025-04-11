@@ -7,8 +7,8 @@ import { UsersService } from './users.service';
 import {
     AccessTokens,
     AccessTokenSchema,
-} from '../accesstoken/schemas/accessTokens.schema';
-import { AccessTokenModule } from '../accesstoken/accessTokens.module';
+} from '../access-token/schemas/accessTokens.schema';
+import { AccessTokenModule } from '../access-token/accessTokens.module';
 
 @Module({
     imports: [

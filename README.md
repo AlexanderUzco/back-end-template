@@ -52,11 +52,10 @@ const excludedRoutes = [
 -   **POST /users/sign-up**: Register a new user in the system.
 -   **POST /users/sign-in**: Sign in to the system.
 -   **GET /users/sign-out**: Sign out of the system.
+-   **GET /users/find**: Find a user in the system (ADMIN)
+-   **GET /users/find-many**: Find many users in the system (ADMIN)
 -   **GET /users/verify-token**: Verify the provided access token.
--   **GET /users/find-from-admin/:id**: Retrieve user details by ID.
--   **POST /users/find-by-params**: Search for a user using multiple parameters.
--   **POST /users/find-by-email**: Search for a user by email address.
--   **POST /users/desactivate-user**: Deactivate a user in the system.
+-   **POST /users/deactivate-user**: Deactivate a user in the system (ADMIN)
 
 ## Running the App
 

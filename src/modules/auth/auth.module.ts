@@ -3,7 +3,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
-import { AccessTokenModule } from '../accesstoken/accessTokens.module';
+import { AccessTokenModule } from '../access-token/accessTokens.module';
 
 @Module({
     imports: [

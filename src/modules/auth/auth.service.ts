@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EJwtError, JwtHelper } from 'src/common/helpers/jwt.helper';
 import { UsersService } from '../users/users.service';
-import { AccessTokensService } from '../accesstoken/accessTokens.service';
+import { AccessTokensService } from '../access-token/accessTokens.service';
 import AuthExceptions from 'src/common/exceptions/auth.exceptions';
 import { JsonWebTokenError } from 'jsonwebtoken';
 

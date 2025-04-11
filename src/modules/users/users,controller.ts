@@ -1,19 +1,31 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { AuthUser } from '../auth/auth.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { SigninDto } from './dtos/signin.dto';
 import { UsersService } from './users.service';
 import { AuthUserDto } from '../auth/dtos/auth-user.dto';
 import { FindOneByParamsDto } from './dtos/find-one-by-params.dto';
-import { FindByEmailDto } from './dtos/find-by-email.dto';
-import { DesactivateUserDto } from './dtos/desactivate-user.dto';
+import { DeactivateUserDto } from './dtos/deactivate-user.dto';
 import { HandleException } from 'src/common/decorators/handle-exceptio-decorator.decorator';
-import { ObjectIdPipe } from 'src/common/pipes/objectid.pipe';
-import { Types } from 'mongoose';
-
+import { UseGuards } from '@nestjs/common';
+import { AdminGuard } from 'src/common/guards/admin.guard';
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
+
+    @Get('/find')
+    @UseGuards(AdminGuard)
+    @HandleException('ERROR FIND USER FROM ADMIN')
+    async findUser(@Query() findOneByParamsDto: FindOneByParamsDto) {
+        return this.usersService.findOne(findOneByParamsDto);
+    }
+
+    @Get('/find-many')
+    @UseGuards(AdminGuard)
+    @HandleException('ERROR FIND USER FROM ADMIN')
+    async findManyUsers(@Query() findOneByParamsDto: FindOneByParamsDto) {
+        return this.usersService.findMany(findOneByParamsDto);
+    }
 
     @Post('/sign-up')
     @HandleException('ERROR CREATE USER')
@@ -39,27 +51,10 @@ export class UsersController {
         return await this.usersService.verifyToken(user);
     }
 
-    @Get('/find-from-admin/:id')
-    @HandleException('ERROR FIND USER FROM ADMIN')
-    async findByUserIdFromAdmin(@Param('id', ObjectIdPipe) id: Types.ObjectId) {
-        return this.usersService.findOneById(id);
-    }
-
-    @Post('/find-by-params')
-    @HandleException('ERROR FIND USER FROM ADMIN')
-    async findUserByManyParams(@Body() findOneByParamsDto: FindOneByParamsDto) {
-        return this.usersService.findOneByParams(findOneByParamsDto);
-    }
-
-    @Post('find-by-email')
-    @HandleException('ERROR FIND USER FROM ADMIN')
-    async findByEmail(@Body() findByEmailDto: FindByEmailDto) {
-        return this.usersService.findOneByEmail(findByEmailDto.email);
-    }
-
-    @Post('/desactivate-user')
+    @Post('/deactivate-user')
+    @UseGuards(AdminGuard)
     @HandleException('ERROR DESACTIVATE USER')
-    async desactivateUser(@Body() desactivateUserDto: DesactivateUserDto) {
-        return this.usersService.desactivateUser(desactivateUserDto);
+    async deactivateUser(@Body() deactivateUserDto: DeactivateUserDto) {
+        return this.usersService.deactivateUser(deactivateUserDto);
     }
 }

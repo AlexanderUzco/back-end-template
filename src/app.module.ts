@@ -7,7 +7,7 @@ import { EDatabaseName } from './common/constants/database.constants';
 import { AuthMiddleware } from './modules/auth/auth.middleware';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { AccessTokenModule } from './modules/accesstoken/accessTokens.module';
+import { AccessTokenModule } from './modules/access-token/accessTokens.module';
 import { AuthMiddlewareRoutes } from './routerMiddlewares/authMiddleware.route';
 import { BASE_DB_URI, NODE_ENV } from './common/environments';
 

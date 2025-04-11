@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { EDatabaseName } from 'src/common/constants/database.constants';
@@ -7,10 +7,10 @@ import { JwtHelper } from 'src/common/helpers/jwt.helper';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { SigninDto } from './dtos/signin.dto';
 import { User, UserDocument } from './schemas/users.schema';
-import { AccessTokensService } from '../accesstoken/accessTokens.service';
+import { AccessTokensService } from '../access-token/accessTokens.service';
 import { AuthUserDto } from '../auth/dtos/auth-user.dto';
 import { FindOneByParamsDto } from './dtos/find-one-by-params.dto';
-import { DesactivateUserDto } from './dtos/desactivate-user.dto';
+import { DeactivateUserDto } from './dtos/deactivate-user.dto';
 import AuthExceptions from 'src/common/exceptions/auth.exceptions';
 import UserExceptions from 'src/common/exceptions/user.exception';
 
@@ -51,12 +51,23 @@ export class UsersService {
         };
     }
 
-    async findOneByParams(params: FindOneByParamsDto) {
+    async findOne(params: FindOneByParamsDto) {
         const user = await this.userModel.findOne(params).exec();
-        return user;
+        return {
+            message: 'User found',
+            data: user,
+        };
     }
 
-    async desactivateUser(params: DesactivateUserDto) {
+    async findMany(params: FindOneByParamsDto) {
+        const user = await this.userModel.find(params).exec();
+        return {
+            message: 'User found',
+            data: user,
+        };
+    }
+
+    async deactivateUser(params: DeactivateUserDto) {
         const { userID, reasonSuspended } = params;
 
         const user = await this.findOneById(userID);
@@ -75,7 +86,7 @@ export class UsersService {
         await this.userModel.updateOne(match, update).exec();
 
         return {
-            message: 'User desactivated',
+            message: 'User deactivated',
         };
     }
 
@@ -119,7 +130,9 @@ export class UsersService {
             },
         };
         await this.userModel.updateOne(match, update).exec();
-        return;
+        return {
+            message: 'Last login updated',
+        };
     }
 
     async signin({ email, password }: SigninDto) {
