@@ -1,4 +1,11 @@
-import { Model, Require_id, FlattenMaps, FilterQuery, model } from 'mongoose';
+import {
+    Model,
+    Require_id,
+    FlattenMaps,
+    FilterQuery,
+    model,
+    PopulateOptions,
+} from 'mongoose';
 import { PaginateQuery } from 'src/common/dto/paginate-query.dto';
 
 export interface Pagination extends PaginateQuery {
@@ -43,6 +50,7 @@ interface PaginateOptions<T> {
     project?: MongoOptions<T>;
     options?: MongoOptions<T>;
     lean?: boolean;
+    populate?: PopulateOptions[];
 }
 
 export const paginate = async <T>({
@@ -51,6 +59,7 @@ export const paginate = async <T>({
     project = {},
     options = {},
     lean = true,
+    populate = [],
 }: PaginateOptions<T>): Promise<PaginateResult<T>> => {
     const { page = 1, limit = 10, ...rest } = queryValues;
 
@@ -64,24 +73,25 @@ export const paginate = async <T>({
     }, {});
 
     try {
+        const queryInstance = model.find(query, project, options);
+
+        if (populate) {
+            queryInstance.populate(populate);
+        }
+
         const [items, total] = await Promise.all([
-            model
-                .find(query, project, options)
-                .skip(skip)
-                .limit(limit)
-                .lean(lean)
-                .exec(),
+            queryInstance.skip(skip).limit(limit).lean(lean).exec(),
             model.countDocuments(query, options).exec(),
         ]);
 
         return {
             items: items as Require_id<FlattenMaps<T>>[],
             meta: {
-                total,
-                count: items.length,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit),
+                total: Number(total),
+                count: Number(items.length),
+                page: Number(page),
+                limit: Number(limit),
+                totalPages: Math.ceil(Number(total) / Number(limit)),
             },
         };
     } catch (error) {
