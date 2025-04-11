@@ -4,7 +4,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { SigninDto } from './dtos/signin.dto';
 import { UsersService } from './users.service';
 import { AuthUserDto } from '../auth/dtos/auth-user.dto';
-import { FindOneByParamsDto } from './dtos/find-one-by-params.dto';
+import { FindUserQuery } from './dtos/find-user-query.dto';
 import { DeactivateUserDto } from './dtos/deactivate-user.dto';
 import { HandleException } from 'src/common/decorators/handle-exceptio-decorator.decorator';
 import { UseGuards } from '@nestjs/common';
@@ -16,15 +16,15 @@ export class UsersController {
     @Get('/find')
     @UseGuards(AdminGuard)
     @HandleException('ERROR FIND USER FROM ADMIN')
-    async findUser(@Query() findOneByParamsDto: FindOneByParamsDto) {
-        return this.usersService.findOne(findOneByParamsDto);
+    async findUser(@Query() findUserQuery: FindUserQuery) {
+        return this.usersService.findOne(findUserQuery);
     }
 
     @Get('/find-many')
     @UseGuards(AdminGuard)
     @HandleException('ERROR FIND USER FROM ADMIN')
-    async findManyUsers(@Query() findOneByParamsDto: FindOneByParamsDto) {
-        return this.usersService.findMany(findOneByParamsDto);
+    async findManyUsers(@Query() findUserQuery: FindUserQuery) {
+        return this.usersService.findMany(findUserQuery);
     }
 
     @Post('/sign-up')

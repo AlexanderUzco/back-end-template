@@ -9,10 +9,11 @@ import { SigninDto } from './dtos/signin.dto';
 import { User, UserDocument } from './schemas/users.schema';
 import { AccessTokensService } from '../access-token/accessTokens.service';
 import { AuthUserDto } from '../auth/dtos/auth-user.dto';
-import { FindOneByParamsDto } from './dtos/find-one-by-params.dto';
+import { FindUserQuery } from './dtos/find-user-query.dto';
 import { DeactivateUserDto } from './dtos/deactivate-user.dto';
 import AuthExceptions from 'src/common/exceptions/auth.exceptions';
 import UserExceptions from 'src/common/exceptions/user.exception';
+import { paginate } from 'src/utils/paginate.utils';
 
 @Injectable()
 export class UsersService {
@@ -51,7 +52,7 @@ export class UsersService {
         };
     }
 
-    async findOne(params: FindOneByParamsDto) {
+    async findOne(params: FindUserQuery) {
         const user = await this.userModel.findOne(params).exec();
         return {
             message: 'User found',
@@ -59,11 +60,18 @@ export class UsersService {
         };
     }
 
-    async findMany(params: FindOneByParamsDto) {
-        const user = await this.userModel.find(params).exec();
+    async findMany(params: FindUserQuery) {
+        const { items, meta } = await paginate({
+            model: this.userModel,
+            queryValues: params,
+            project: { _id: 1, name: 1, email: 1, country: 1, role: 1 },
+            options: { sort: { createdAt: -1 } },
+        });
+
         return {
             message: 'User found',
-            data: user,
+            data: items,
+            meta,
         };
     }
 

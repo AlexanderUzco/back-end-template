@@ -1,11 +1,12 @@
 import { IsString, IsEmail, IsOptional, IsMongoId } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Types } from 'mongoose';
+import { PaginateQuery } from 'src/common/dto/paginate-query.dto';
 
-export class FindOneByParamsDto {
+export class FindUserQuery extends PaginateQuery {
     @IsMongoId()
     @IsOptional()
-    readonly userID?: Types.ObjectId;
+    readonly _id?: Types.ObjectId;
 
     @IsString()
     @IsOptional()
