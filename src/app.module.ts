@@ -10,7 +10,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AccessTokenModule } from './modules/access-token/accessTokens.module';
 import { AuthMiddlewareRoutes } from './routerMiddlewares/authMiddleware.route';
 import { BASE_DB_URI, NODE_ENV } from './common/environments';
-
+import { WorkspaceModule } from './modules/workspace/worksapce.module';
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -23,6 +23,7 @@ import { BASE_DB_URI, NODE_ENV } from './common/environments';
         UsersModule,
         AuthModule,
         AccessTokenModule,
+        WorkspaceModule,
     ],
     controllers: [AppController],
     providers: [AppService],
