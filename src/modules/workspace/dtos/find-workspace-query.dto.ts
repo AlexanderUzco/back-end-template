@@ -14,4 +14,8 @@ export class FindWorkspaceQuery {
     @IsString()
     @IsOptional()
     readonly name?: string;
+
+    @IsOptional()
+    @Transform(({ value }: { value: string }) => value)
+    readonly createdAt?: string;
 }
