@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HandleException } from 'src/common/decorators/handle-exceptio-decorator.decorator';
-import { AdminGuard } from 'src/common/guards/admin.guard';
 
 import { AuthUser } from '../auth/auth.decorator';
 import { AuthUserDto } from '../auth/dtos/auth-user.dto';
@@ -56,44 +55,6 @@ export class RefreshTokenController {
         return {
             message: `Revoked ${revokedCount} refresh tokens`,
             revokedCount,
-        };
-    }
-
-    @Get('active')
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get active refresh tokens for current user' })
-    @ApiResponse({ status: 200, description: 'Active tokens retrieved successfully' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @HandleException('ERROR GET ACTIVE TOKENS')
-    async getActiveTokens(@AuthUser() user: AuthUserDto) {
-        const tokens = await this.refreshTokenService.getUserActiveTokens(user._id);
-
-        return {
-            message: 'Active tokens retrieved successfully',
-            data: tokens.map((token) => ({
-                id: token._id,
-                createdAt: token.createdAt,
-                expiresAt: token.expiresAt,
-                userAgent: token.userAgent,
-                ipAddress: token.ipAddress,
-            })),
-        };
-    }
-
-    @Post('cleanup')
-    @ApiBearerAuth()
-    @UseGuards(AdminGuard)
-    @ApiOperation({ summary: 'Clean up expired refresh tokens (ADMIN ONLY)' })
-    @ApiResponse({ status: 200, description: 'Expired tokens cleaned up successfully' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
-    @HandleException('ERROR CLEANUP TOKENS')
-    async cleanupExpiredTokens() {
-        const deletedCount = await this.refreshTokenService.deleteExpiredTokens();
-
-        return {
-            message: `Cleaned up ${deletedCount} expired tokens`,
-            deletedCount,
         };
     }
 }

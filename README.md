@@ -188,7 +188,7 @@ const excludedRoutes = [
 
 ### Refresh Token
 
--   **POST /refresh-token/refresh**: Refresh access token using refresh token.
+-   **POST /refresh-token/**: Refresh access token using refresh token.
 -   **POST /refresh-token/revoke**: Revoke current refresh token.
 -   **POST /refresh-token/revoke-all**: Revoke all refresh tokens for current user.
 
