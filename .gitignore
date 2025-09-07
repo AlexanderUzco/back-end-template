@@ -13,7 +13,6 @@ logs
 *.log
 
 # Archivos de dependencias
-yarn.lock
 package-lock.json
 
 # Archivos generados por IDEs/editores de texto

@@ -1,21 +1,29 @@
-import { Transform } from 'class-transformer';
-import { IsMongoId, IsOptional, IsString } from 'class-validator';
-import { Types } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
+import { PaginateQuery } from 'src/common/dto/paginate-query.dto';
 
-export class FindWorkspaceQuery {
+export class FindWorkspaceQuery extends PaginateQuery {
+    @ApiProperty({
+        description: 'The ID of the workspace',
+        example: '1234567890',
+        required: false,
+    })
     @IsOptional()
-    @Transform(({ value }: { value: string }) => new Types.ObjectId(value))
-    readonly _id?: Types.ObjectId;
+    readonly _id?: string;
 
+    @ApiProperty({
+        description: 'The ID of the owner',
+        example: '1234567890',
+        required: false,
+    })
     @IsOptional()
-    @Transform(({ value }: { value: string }) => new Types.ObjectId(value))
-    readonly ownerID?: Types.ObjectId;
+    readonly ownerID?: string;
 
-    @IsString()
+    @ApiProperty({
+        description: 'The created at of the workspace',
+        example: '2021-01-01',
+        required: false,
+    })
     @IsOptional()
-    readonly name?: string;
-
-    @IsOptional()
-    @Transform(({ value }: { value: string }) => value)
-    readonly createdAt?: string;
+    createdAt?: string;
 }

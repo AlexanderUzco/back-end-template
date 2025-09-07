@@ -1,17 +1,12 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module, forwardRef } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthService } from './auth.service';
+
 import { UsersModule } from '../users/users.module';
-import { AccessTokenModule } from '../access-token/accessTokens.module';
+import { AuthService } from './auth.service';
 
 @Module({
-    imports: [
-        HttpModule,
-        ConfigModule,
-        forwardRef(() => UsersModule),
-        forwardRef(() => AccessTokenModule),
-    ],
+    imports: [HttpModule, ConfigModule, forwardRef(() => UsersModule)],
     providers: [AuthService],
     exports: [AuthService],
 })

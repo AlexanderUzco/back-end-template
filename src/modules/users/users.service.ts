@@ -1,34 +1,37 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { randomUUID } from 'crypto';
 import { Model, Types } from 'mongoose';
 import { EDatabaseName } from 'src/common/constants/database.constants';
-import { BcryptHelper } from 'src/common/helpers/bcrypt.helper';
-import { JwtHelper } from 'src/common/helpers/jwt.helper';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { SigninDto } from './dtos/signin.dto';
-import { User, UserDocument } from './schemas/users.schema';
-import { AccessTokensService } from '../access-token/accessTokens.service';
-import { AuthUserDto } from '../auth/dtos/auth-user.dto';
-import { FindUserQuery } from './dtos/find-user-query.dto';
-import { DeactivateUserDto } from './dtos/deactivate-user.dto';
 import AuthExceptions from 'src/common/exceptions/auth.exceptions';
 import UserExceptions from 'src/common/exceptions/user.exception';
+import { BcryptHelper } from 'src/common/helpers/bcrypt.helper';
+import { JwtHelper } from 'src/common/helpers/jwt.helper';
 import { paginate } from 'src/utils/paginate.utils';
+
+import { AuthUserDto } from '../auth/dtos/auth-user.dto';
+import { RefreshTokenService } from '../refresh-token/refresh-token.service';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { DeactivateUserDto } from './dtos/deactivate-user.dto';
+import { FindUserQuery } from './dtos/find-user-query.dto';
+import { SigninDto } from './dtos/signin.dto';
+import { User, UserDocument } from './schemas/users.schema';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectModel(User.name, EDatabaseName.BASE)
         private readonly userModel: Model<UserDocument>,
-        private readonly accessTokensService: AccessTokensService,
+        private readonly refreshTokenService: RefreshTokenService,
     ) {}
 
-    private buildSignInResponse(user: User, token: string) {
+    private buildSignInResponse(user: User, accessToken: string, refreshToken: string) {
         return {
             _id: user._id,
             name: user.name,
             email: user.email,
-            token,
+            accessToken,
+            refreshToken,
         };
     }
 
@@ -61,9 +64,21 @@ export class UsersService {
     }
 
     async findMany(params: FindUserQuery) {
+        const { search } = params;
+
+        const queryValues = {
+            ...params,
+            ...(search && {
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } },
+                ],
+            }),
+        };
+
         const { items, meta } = await paginate({
             model: this.userModel,
-            queryValues: params,
+            queryValues,
             project: { _id: 1, name: 1, email: 1, country: 1, role: 1 },
             options: { sort: { createdAt: -1 } },
         });
@@ -114,19 +129,33 @@ export class UsersService {
 
         const { _id } = userCreated;
 
-        const { token } = await JwtHelper.generateJWT({
+        const { token: accessToken } = await JwtHelper.generateJWT({
             uid: _id,
-            email,
+            name: userCreated.name,
+            email: userCreated.email,
         });
 
-        await this.accessTokensService.create({
-            token,
-            userID: userCreated._id,
+        const jtiSignup = randomUUID();
+        const { token: refreshToken, expiresAt } = await JwtHelper.generateRefreshToken({
+            uid: _id,
+            name: userCreated.name,
+            email: userCreated.email,
+            jti: jtiSignup,
         });
+
+        await this.refreshTokenService.create(
+            _id,
+            refreshToken,
+            expiresAt,
+            undefined,
+            undefined,
+            undefined,
+            jtiSignup,
+        );
 
         return {
             message: 'User created',
-            data: this.buildSignInResponse(userCreated, token),
+            data: this.buildSignInResponse(userCreated, accessToken, refreshToken),
         };
     }
 
@@ -157,21 +186,36 @@ export class UsersService {
 
         if (!isMatch) throw UserExceptions.WRONG_PASSWORD;
 
-        const { token } = await JwtHelper.generateJWT({
+        const { token: accessToken } = await JwtHelper.generateJWT({
             uid: existUser._id,
             name: existUser.name,
+            email: existUser.email,
         });
 
-        if (!token) throw AuthExceptions.TOKEN_CREATE_ERROR;
-
-        await this.accessTokensService.create({
-            token,
-            userID: existUser._id,
+        const jtiSignin = randomUUID();
+        const { token: refreshToken, expiresAt } = await JwtHelper.generateRefreshToken({
+            uid: existUser._id,
+            name: existUser.name,
+            email: existUser.email,
+            jti: jtiSignin,
         });
+
+        if (!accessToken || !refreshToken) throw AuthExceptions.TOKEN_CREATE_ERROR;
+
+        // Guardar refresh token en la base de datos con firstIssuedAt y jti sincronizados
+        await this.refreshTokenService.create(
+            existUser._id,
+            refreshToken,
+            expiresAt,
+            undefined,
+            undefined,
+            undefined,
+            jtiSignin,
+        );
 
         return {
             message: 'User signin',
-            data: this.buildSignInResponse(existUser, token),
+            data: this.buildSignInResponse(existUser, accessToken, refreshToken),
         };
     }
 
@@ -180,7 +224,8 @@ export class UsersService {
 
         if (!user) throw UserExceptions.NOT_FOUND;
 
-        await this.accessTokensService.deleteByUserId(user._id);
+        // Revocar todos los refresh tokens del usuario
+        await this.refreshTokenService.revokeByUserId(user._id);
 
         return {
             message: 'User signout',

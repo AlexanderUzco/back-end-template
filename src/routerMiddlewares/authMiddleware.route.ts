@@ -7,6 +7,7 @@ const excludedRoutes = [
     { path: '/users/find-by-param', method: RequestMethod.POST },
     { path: 'users/find-by-email', method: RequestMethod.POST },
     { path: 'users/desactivate-user', method: RequestMethod.POST },
+    { path: 'refresh-token', method: RequestMethod.POST },
 ];
 
 const AuthMiddlewareRoutes = {

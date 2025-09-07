@@ -1,14 +1,12 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { EDatabaseName } from 'src/common/constants/database.constants';
+
+import { AuthModule } from '../auth/auth.module';
+import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { User, UserSchema } from './schemas/users.schema';
-import { UsersController } from './users,controller';
+import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import {
-    AccessTokens,
-    AccessTokenSchema,
-} from '../access-token/schemas/accessTokens.schema';
-import { AccessTokenModule } from '../access-token/accessTokens.module';
 
 @Module({
     imports: [
@@ -18,16 +16,6 @@ import { AccessTokenModule } from '../access-token/accessTokens.module';
                     name: User.name,
                     useFactory: () => {
                         const schema = UserSchema;
-                        schema.plugin(require('mongoose-autopopulate'));
-                        return schema;
-                    },
-                    inject: [getConnectionToken(EDatabaseName.BASE)],
-                },
-                {
-                    name: AccessTokens.name,
-                    useFactory: () => {
-                        const schema = AccessTokenSchema;
-                        schema.plugin(require('mongoose-autopopulate'));
                         return schema;
                     },
                     inject: [getConnectionToken(EDatabaseName.BASE)],
@@ -35,7 +23,8 @@ import { AccessTokenModule } from '../access-token/accessTokens.module';
             ],
             EDatabaseName.BASE,
         ),
-        AccessTokenModule,
+        forwardRef(() => RefreshTokenModule),
+        forwardRef(() => AuthModule),
     ],
     controllers: [UsersController],
     providers: [UsersService],

@@ -1,10 +1,10 @@
-import { IsString, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import { Types } from 'mongoose';
 import { ERole } from 'src/common/constants/role.constants';
 
 export class AuthUserDto {
-    @IsString()
+    @IsMongoId()
     @IsNotEmpty()
     @Type(() => Types.ObjectId)
     readonly _id: Types.ObjectId;

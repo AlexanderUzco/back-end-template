@@ -1,30 +1,45 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { Types } from 'mongoose';
+import { HandleException } from 'src/common/decorators/handle-exceptio-decorator.decorator';
+import { AdminGuard } from 'src/common/guards/admin.guard';
+
 import { AuthUser } from '../auth/auth.decorator';
+import { AuthUserDto } from '../auth/dtos/auth-user.dto';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { DeactivateUserDto } from './dtos/deactivate-user.dto';
+import { FindUserQuery } from './dtos/find-user-query.dto';
 import { SigninDto } from './dtos/signin.dto';
 import { UsersService } from './users.service';
-import { AuthUserDto } from '../auth/dtos/auth-user.dto';
-import { FindUserQuery } from './dtos/find-user-query.dto';
-import { DeactivateUserDto } from './dtos/deactivate-user.dto';
-import { HandleException } from 'src/common/decorators/handle-exceptio-decorator.decorator';
-import { UseGuards } from '@nestjs/common';
-import { AdminGuard } from 'src/common/guards/admin.guard';
+
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Get('/find')
+    @Get('/')
+    @ApiBearerAuth()
     @UseGuards(AdminGuard)
     @HandleException('ERROR FIND USER FROM ADMIN')
-    async findUser(@Query() findUserQuery: FindUserQuery) {
-        return this.usersService.findOne(findUserQuery);
+    async findUsers(@Query() findUserQuery: FindUserQuery) {
+        return this.usersService.findMany(findUserQuery);
     }
 
-    @Get('/find-many')
+    
+    @Get('/verify-token')
+    @ApiBearerAuth()
+    @HandleException('ERROR VERIFY TOKEN')
+    verifyToken(@AuthUser() user: AuthUserDto) {
+        return this.usersService.verifyToken(user);
+    }
+
+
+    @Get('/:id')
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', type: String })
     @UseGuards(AdminGuard)
     @HandleException('ERROR FIND USER FROM ADMIN')
-    async findManyUsers(@Query() findUserQuery: FindUserQuery) {
-        return this.usersService.findMany(findUserQuery);
+    async findUser(@Param('id') id: Types.ObjectId) {
+        return this.usersService.findOneById(id);
     }
 
     @Post('/sign-up')
@@ -40,18 +55,14 @@ export class UsersController {
     }
 
     @Post('/sign-out')
+    @ApiBearerAuth()
     @HandleException('ERROR SIGNOUT USER')
     async signout(@AuthUser() user: AuthUserDto) {
         return this.usersService.signout(user._id);
     }
 
-    @Get('/verify-token')
-    @HandleException('ERROR VERIFY TOKEN')
-    async verifyToken(@AuthUser() user: AuthUserDto) {
-        return await this.usersService.verifyToken(user);
-    }
-
     @Post('/deactivate-user')
+    @ApiBearerAuth()
     @UseGuards(AdminGuard)
     @HandleException('ERROR DESACTIVATE USER')
     async deactivateUser(@Body() deactivateUserDto: DeactivateUserDto) {

@@ -1,31 +1,13 @@
-import { IsString, IsEmail, IsOptional, IsMongoId } from 'class-validator';
-import { Type } from 'class-transformer';
-import { Types } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 import { PaginateQuery } from 'src/common/dto/paginate-query.dto';
 
 export class FindUserQuery extends PaginateQuery {
-    @IsMongoId()
+    @ApiProperty({
+        description: 'The ID of the user',
+        example: '1234567890',
+        required: false,
+    })
     @IsOptional()
-    readonly _id?: Types.ObjectId;
-
-    @IsString()
-    @IsOptional()
-    @Type(() => String)
-    readonly name?: string;
-
-    @IsString()
-    @IsOptional()
-    @Type(() => String)
-    readonly lastName?: string;
-
-    @IsString()
-    @IsOptional()
-    @Type(() => String)
-    readonly fullMobile?: string;
-
-    @IsString()
-    @IsOptional()
-    @IsEmail()
-    @Type(() => String)
-    readonly email?: string;
+    readonly _id?: string;
 }

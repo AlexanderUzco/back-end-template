@@ -1,14 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as moment from 'moment';
 import { Model } from 'mongoose';
 import { EDatabaseName } from 'src/common/constants/database.constants';
 import { paginate } from 'src/utils/paginate.utils';
-import { WorkspaceDocument } from './schemas/workspace.schema';
-import { Workspace } from './schemas/workspace.schema';
+
+import { AuthUserDto } from '../auth/dtos/auth-user.dto';
 import { CreateWorkspaceDto } from './dtos/create-workspace.dto';
 import { FindWorkspaceQuery } from './dtos/find-workspace-query.dto';
-import { AuthUserDto } from '../auth/dtos/auth-user.dto';
-import * as moment from 'moment';
+import { Workspace, WorkspaceDocument } from './schemas/workspace.schema';
 
 @Injectable()
 export class WorkspaceService {
@@ -17,10 +17,7 @@ export class WorkspaceService {
         private readonly workspaceModel: Model<WorkspaceDocument>,
     ) {}
 
-    async createWorkspace(
-        createWorkspaceDto: CreateWorkspaceDto,
-        user: AuthUserDto,
-    ) {
+    async createWorkspace(createWorkspaceDto: CreateWorkspaceDto, user: AuthUserDto) {
         const workspace = await this.workspaceModel.create({
             ...createWorkspaceDto,
             ownerID: user._id,
@@ -47,6 +44,7 @@ export class WorkspaceService {
             queryValues,
             populate: [{ path: 'ownerID', select: 'name email' }],
         });
+
         return {
             message: 'Workspace found',
             data: items,

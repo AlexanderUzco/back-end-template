@@ -1,14 +1,8 @@
-import {
-    Model,
-    Require_id,
-    FlattenMaps,
-    FilterQuery,
-    model,
-    PopulateOptions,
-} from 'mongoose';
+import { FilterQuery, FlattenMaps, Model, PopulateOptions, Require_id } from 'mongoose';
 import { PaginateQuery } from 'src/common/dto/paginate-query.dto';
 
 export interface Pagination extends PaginateQuery {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
 }
 
@@ -27,10 +21,12 @@ export interface PaginateResult<T> {
 
 export interface MongoOptions<T> {
     filter?: FilterQuery<T>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     populate?: string | string[] | any;
     sort?: Record<string, 1 | -1> | string;
     select?: string | Record<string, 1 | 0>;
     lean?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
 }
 
