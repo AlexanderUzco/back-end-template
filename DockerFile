@@ -13,4 +13,4 @@ RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt
 
 RUN yarn install --frozen-lockfile
 COPY . .
-CMD ["yarn", "start:dev"]
+CMD ["yarn", "start:prod"]
