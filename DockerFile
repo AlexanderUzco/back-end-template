@@ -7,10 +7,12 @@ RUN corepack enable && corepack prepare yarn@1.22.22 --activate
 RUN mkdir -p /api
 WORKDIR /api
 COPY package.json yarn.lock ./
+COPY tsconfig.json ./
 
 # Build tools for native modules (e.g., bcrypt)
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 RUN yarn install --frozen-lockfile
+RUN yarn build
 COPY . .
 CMD ["yarn", "start:prod"]
