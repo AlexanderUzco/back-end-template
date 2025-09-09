@@ -1,16 +1,29 @@
 FROM node:22
 
-# Enable Corepack and Yarn 1
+# Enable Corepack and Yarn
 RUN corepack enable && corepack prepare yarn@1.22.22 --activate
 
 # Create app directory
-RUN mkdir -p /api
-WORKDIR /api
-COPY package.json yarn.lock ./
+WORKDIR /app
 
-# Build tools for native modules (e.g., bcrypt)
+# Copy package files first for better Docker layer caching
+COPY package.json yarn.lock ./
+COPY tsconfig.json ./
+
+# Install system dependencies for native modules
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
+# Install dependencies
 RUN yarn install --frozen-lockfile
+
+# Copy source code
 COPY . .
-CMD ["yarn", "start:prod"]
+
+# Build the application
+RUN yarn build
+
+# Expose port
+EXPOSE 3000
+
+# Start the application
+CMD ["yarn", "start"]
