@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
+dotenv.config({ path: `.env.${process.env.NODE_ENV || ''}` });
 
 // Db uri
 const BASE_DB_URI: string = process.env.BASE_DB_URI || '';
@@ -24,6 +24,5 @@ export {
     JWT_SECRET,
     NODE_ENV,
     PORT,
-    REFRESH_MAX_TTL
+    REFRESH_MAX_TTL,
 };
-
